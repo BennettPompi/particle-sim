@@ -1,5 +1,6 @@
 import vertexShader from "./shaders/vertex_shader.wgsl";
 import fragmentShader from "./shaders/fragment_shader.wgsl";
+import { ParticleBufferManager } from "./buffers/ParticleBufferManager";
 
 // Keep in sync with WGSL structs
 export interface GPUParticle {
@@ -24,11 +25,48 @@ export class Renderer {
     private fragmentShader!: GPUShaderModule;
     private pipeline!: GPURenderPipeline;
     private renderPassDescriptor!: GPURenderPassDescriptor;
+    private bufferManager!: ParticleBufferManager;
+    private bindGroup!: GPUBindGroup;
+
     constructor(private canvas: HTMLCanvasElement) {}
 
     public async init() {
         console.log(vertexShader);
         await this.getGPUDevice();
+        this.bufferManager = new ParticleBufferManager(this.device);
+
+        // Create bind group layout
+        const bindGroupLayout = this.device.createBindGroupLayout({
+            label: "Bind Group Layout",
+            entries: [
+                {
+                    binding: 0,
+                    visibility: GPUShaderStage.VERTEX | GPUShaderStage.COMPUTE,
+                    buffer: { type: "storage" },
+                },
+                {
+                    binding: 1,
+                    visibility: GPUShaderStage.VERTEX | GPUShaderStage.COMPUTE,
+                    buffer: { type: "uniform" },
+                },
+            ],
+        });
+
+        // Create actual bind group
+        this.bindGroup = this.device.createBindGroup({
+            layout: bindGroupLayout,
+            entries: [
+                {
+                    binding: 0,
+                    resource: { buffer: this.bufferManager.particleBuffer },
+                },
+                {
+                    binding: 1,
+                    resource: { buffer: this.bufferManager.paramsBuffer },
+                },
+            ],
+        });
+
         this.configCanvas();
         this.loadShaders();
         this.configurePipeline();
@@ -117,6 +155,7 @@ export class Renderer {
         });
 
         const pass = encoder.beginRenderPass(this.renderPassDescriptor);
+        pass.setBindGroup(0, this.bindGroup);
         pass.setPipeline(this.pipeline);
         pass.draw(6);
         pass.end();

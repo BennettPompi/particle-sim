@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Renderer } from "./Renderer";
+import { Renderer } from "./webgl_logic/Renderer";
 
 export const SimRender: React.FC = ({}) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);

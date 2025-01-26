@@ -1,9 +1,9 @@
-import { MAX_PARTICLES } from "../constants";
+import { MAX_PARTICLES } from "../../constants";
 import { GPUParticle, GPUSimParams } from "../Renderer";
 export class ParticleBufferManager {
     private device: GPUDevice;
-    private particleBuffer: GPUBuffer;
-    private paramsBuffer: GPUBuffer;
+    public particleBuffer: GPUBuffer;
+    public paramsBuffer: GPUBuffer;
 
     constructor(device: GPUDevice) {
         this.device = device;
@@ -11,7 +11,7 @@ export class ParticleBufferManager {
         // Particle storage buffer (read/write in compute shader)
         this.particleBuffer = device.createBuffer({
             label: "Particle Storage",
-            size: MAX_PARTICLES * 20, // 2(vec2) + 2(vec2) + 1 + 4 = 9 floats → 36 bytes
+            size: MAX_PARTICLES * 36, // 2(vec2) + 2(vec2) + 1 + 4 = 9 floats → 36 bytes
             usage:
                 GPUBufferUsage.STORAGE |
                 GPUBufferUsage.VERTEX |

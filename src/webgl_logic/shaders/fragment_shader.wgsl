@@ -5,14 +5,14 @@ struct VertexOut {
 };
 @fragment
 fn fs(in: VertexOut) -> @location(0) vec4f {
-  let coord = in.position.xy - vec2(0.5); // Center coordinate
-  let dist = length(coord);
+    let coord = in.pos.xy - vec2(0.5); // Center coordinate
+    let dist = length(coord);
   
   // Circular particle
-  if (dist > 0.5) {
+    if dist > 0.5 {
     discard;
-  }
-  return vec4f(in.color.rgb, 1.0 - smoothstep(0.4, 0.5, dist));
+    }
+    return vec4f(in.color.rgb, 1.0 - smoothstep(0.4, 0.5, dist));
 }
 
 // // set the colors of the area within the triangle
